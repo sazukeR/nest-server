@@ -52,8 +52,34 @@ export class TasksService {
 
   }
 
-  update(id: number, updateTaskDto: UpdateTaskDto) {
-    return `This action updates a #${id} task`;
+  async update(id: string, updateTaskDto: UpdateTaskDto) {
+
+    const task = await this.taskRepository.preload({
+      id: id,
+      ...updateTaskDto
+    });
+
+    if ( !task ) {
+      throw new NotFoundException(`Product with id: ${id} not found`);
+    }
+
+    if ( updateTaskDto.title ) {
+      updateTaskDto.title = updateTaskDto.title.toLocaleLowerCase();
+    }
+
+    try {
+      
+      await this.taskRepository.save(task)
+      
+
+    } catch (error) {
+      
+      console.log(error)
+
+    }
+
+    return task;
+
   }
 
   remove(id: number) {

@@ -16,7 +16,7 @@ export class TasksController {
 
   @Get(':term')
   getOneTask( @Param( "term" ) term: string) { 
-     return this.tasksService.findOneTask(term);
+     return this.tasksService.findOneTask( term );
   }
 
   @Post()
@@ -25,8 +25,11 @@ export class TasksController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateTaskDto: UpdateTaskDto) {
-    return this.tasksService.update(+id, updateTaskDto);
+  update(
+    @Param('id', ParseUUIDPipe) id: string, 
+    @Body() updateTaskDto: UpdateTaskDto,
+    ) {
+    return this.tasksService.update( id, updateTaskDto );
   }
 
   @Delete(':id')
