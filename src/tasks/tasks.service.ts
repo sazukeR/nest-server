@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { BadRequestException, Injectable, InternalServerErrorException, Logger, NotFoundException } from '@nestjs/common';
 import { CreateTaskDto } from './dto/create-task.dto';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { Task } from './entities/task.entity';
@@ -10,15 +10,31 @@ import { PaginationDto } from '../common/dtos/pagination.dto';
 @Injectable()
 export class TasksService {
 
+  private readonly logger = new Logger('TasksService');
 
   constructor(
     @InjectRepository(Task)
     private readonly taskRepository: Repository<Task>,
   ) {}
 
-  create(createTaskDto: CreateTaskDto) {
-    return 'This action adds a new task';
+  async create(createTaskDto: CreateTaskDto) {
+
+    try {
+    
+    const task = this.taskRepository.create(createTaskDto);
+
+    await this.taskRepository.save(task);
+
+    return task;
+
+    } catch (error) {
+
+      this.handleDBExceptions(error);
+
+    }
+
   }
+
 
   async findAll( paginationDto: PaginationDto) {
 
@@ -31,6 +47,7 @@ export class TasksService {
 
     return products;
   }
+
 
   async findOneTask(term: string) {
     
@@ -52,6 +69,7 @@ export class TasksService {
 
   }
 
+
   async update(id: string, updateTaskDto: UpdateTaskDto) {
 
     const task = await this.taskRepository.preload({
@@ -71,10 +89,9 @@ export class TasksService {
       
       await this.taskRepository.save(task)
       
-
     } catch (error) {
       
-      console.log(error)
+      this.handleDBExceptions(error);
 
     }
 
@@ -85,4 +102,18 @@ export class TasksService {
   remove(id: number) {
     return `This action removes a #${id} task`;
   }
+
+
+  private handleDBExceptions( error: any ) {
+
+    if ( error.code === '23505' ) {
+      throw new BadRequestException(error.detail);
+    }
+
+    this.logger.error(error);
+
+    throw new InternalServerErrorException('Unexpected error, check server logs');
+
+  }
+
 }
