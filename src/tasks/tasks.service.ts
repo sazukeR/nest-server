@@ -99,8 +99,13 @@ export class TasksService {
 
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} task`;
+  async remove(id: string) {
+    
+    const task = await this.findOneTask( id );
+    await this.taskRepository.remove( task );
+
+    return `the product with id: ${id} was removed`;
+
   }
 
 
