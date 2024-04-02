@@ -121,4 +121,19 @@ export class TasksService {
 
   }
 
+  async deleteAllTasks() {
+
+    const query = this.taskRepository.createQueryBuilder('task');
+
+    try {
+      return await query
+        .delete()
+        .where({})
+        .execute()
+    } catch (error) {
+      this.handleDBExceptions(error)
+    }
+
+  }
+
 }

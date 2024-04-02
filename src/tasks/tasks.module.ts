@@ -10,6 +10,10 @@ import { Task } from './entities/task.entity';
   providers: [TasksService],
   imports: [
     TypeOrmModule.forFeature([ Task ])
+  ],
+  exports: [
+    TasksService,
+    TypeOrmModule,
   ]
 })
 export class TasksModule {}
